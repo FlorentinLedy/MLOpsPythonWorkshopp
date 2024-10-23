@@ -10,14 +10,14 @@ env:
   PNPM_VERSION: 8.5.1
   PYTHON_VERSION: 3.10.15
   NODE_VERSION: 18
-  AZURE_RESOURCE_GROUP_NAME: "azure-ml-gui"
+  AZURE_RESOURCE_GROUP_NAME: "azure-ml-florentinledy"
   AZURE_LOCATION: "northeurope"
-  AZURE_ML_WORKSPACE_NAME: "cats-dogs-gui"
-  AZURE_WEBAPP_NAME: "cats-dogs-gui"
+  AZURE_ML_WORKSPACE_NAME: "cats-dogs-florentinledy"
+  AZURE_WEBAPP_NAME: "cats-dogs-florentinledy"
   DELETE_WEBAPP: "false"
-  DOCKER_API_IMAGE_NAME: "mlopspython-api"
+  DOCKER_API_IMAGE_NAME: "MLOpsPythonp-api"
   DOCKER_REPOSITORY: ${{ github.repository_owner }}
-  DOCKER_WEBAPP_IMAGE_NAME: "mlopspython-webapp"
+  DOCKER_WEBAPP_IMAGE_NAME: "MLOpsPythonp-webapp"
   DOCKER_REGISTRY: "ghcr.io"
 
 permissions:
@@ -69,13 +69,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install --user poetry
     - name: Run unit tests Packages Extraction
-      working-directory: packages/mlopspython-extraction
+      working-directory: packages/MLOpsPythonp-extraction
       run: |
         poetry install
         poetry run coverage run -m unittest tests.extraction_tests
         poetry run coverage report
     - name: Run unit tests Packages Inference
-      working-directory: packages/mlopspython-inference
+      working-directory: packages/MLOpsPythonp-inference
       run: |
         poetry install
         #poetry run coverage run -m unittest tests.inference_tests
@@ -144,7 +144,7 @@ jobs:
           fi
   train:
     runs-on: ubuntu-latest
-    environment: MLOpsPython
+    environment: MLOpsPythonp
     needs: tags
     outputs:
       MODEL_VERSION: ${{ steps.train.outputs.MODEL_VERSION }}
@@ -232,7 +232,7 @@ jobs:
     - name: Zip Release
       uses: TheDoctor0/zip-release@0.6.0
       with:
-        filename: mlopspython_model.zip
+        filename: MLOpsPythonp_model.zip
         path: .
         directory: ./model
     - name: upload artifact
@@ -242,8 +242,8 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./model/mlopspython_model.zip
-        asset_name: mlopspython_model.zip
+        asset_path: ./model/MLOpsPythonp_model.zip
+        asset_name: MLOpsPythonp_model.zip
         asset_content_type: application/zip
   build_docker_api:
     needs: [train, tags]
@@ -265,7 +265,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   deploy:
-    environment: MLOpsPython
+    environment: MLOpsPythonp
     runs-on: ubuntu-latest
     needs: [tags, build_docker_api, build_docker_webapp]
     steps:
@@ -278,7 +278,7 @@ jobs:
         # https://learn.microsoft.com/en-us/cli/azure/container?view=azure-cli-latest#az-container-create()
         az container create --resource-group ${{ env.AZURE_RESOURCE_GROUP_NAME}} --name ${{ env.AZURE_WEBAPP_NAME }} --dns-name-label ${{ env.AZURE_WEBAPP_NAME }} --image ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPOSITORY }}/${{ env.DOCKER_API_IMAGE_NAME }}:${{ needs.tags.outputs.new_version }} --ports 5000
   integration_tests:
-    environment: MLOpsPython
+    environment: MLOpsPythonp
     runs-on: ubuntu-latest
     needs: [deploy, train]
     steps:
@@ -316,7 +316,7 @@ jobs:
           fi
   webapp_unit_tests:
     runs-on: ubuntu-latest
-    environment: MLOpsPython
+    environment: MLOpsPythonp
     outputs:
       DOCKER_WEBAPP_IMAGE_NAME: ${{ env.DOCKER_REPOSITORY }}/${{ env.DOCKER_WEBAPP_IMAGE_NAME }}
     steps:
@@ -358,7 +358,7 @@ jobs:
   change_log:
     runs-on: ubuntu-latest
     needs: [ integration_tests ]
-    environment: MLOpsPython
+    environment: MLOpsPythonp
     steps:
       - uses: actions/checkout@v4
         with:
