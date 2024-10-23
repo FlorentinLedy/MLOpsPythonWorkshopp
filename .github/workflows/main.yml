@@ -15,9 +15,9 @@ env:
   AZURE_ML_WORKSPACE_NAME: "cats-dogs-florentinledy"
   AZURE_WEBAPP_NAME: "cats-dogs-florentinledy"
   DELETE_WEBAPP: "false"
-  DOCKER_API_IMAGE_NAME: "MLOpsPythonp-api"
+  DOCKER_API_IMAGE_NAME: "mlopspython-api"
   DOCKER_REPOSITORY: ${{ github.repository_owner }}
-  DOCKER_WEBAPP_IMAGE_NAME: "MLOpsPythonp-webapp"
+  DOCKER_WEBAPP_IMAGE_NAME: "mlopspython-webapp"
   DOCKER_REGISTRY: "ghcr.io"
 
 permissions:
@@ -69,13 +69,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install --user poetry
     - name: Run unit tests Packages Extraction
-      working-directory: packages/MLOpsPythonp-extraction
+      working-directory: packages/mlopspython-extraction
       run: |
         poetry install
         poetry run coverage run -m unittest tests.extraction_tests
         poetry run coverage report
     - name: Run unit tests Packages Inference
-      working-directory: packages/MLOpsPythonp-inference
+      working-directory: packages/mlopspython-inference
       run: |
         poetry install
         #poetry run coverage run -m unittest tests.inference_tests
@@ -232,7 +232,7 @@ jobs:
     - name: Zip Release
       uses: TheDoctor0/zip-release@0.6.0
       with:
-        filename: MLOpsPythonp_model.zip
+        filename: mlopspython_model.zip
         path: .
         directory: ./model
     - name: upload artifact
@@ -242,8 +242,8 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./model/MLOpsPythonp_model.zip
-        asset_name: MLOpsPythonp_model.zip
+        asset_path: ./model/mlopspython_model.zip
+        asset_name: mlopspython_model.zip
         asset_content_type: application/zip
   build_docker_api:
     needs: [train, tags]
